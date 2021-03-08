@@ -10,6 +10,7 @@ const flash = require('express-flash')
 const mongoose = require('mongoose')
 const passport = require('passport')
 const methodOverride = require('method-override')
+const LogMiddleware = require("./middleware/log.middleware");
 
 //passport config
 require('./passport-config')(passport)
@@ -20,7 +21,7 @@ app.set('layout', 'layouts/layout')
 app.use(expressLayouts)
 
 app.use(express.static('public'))
-app.use(express.urlencoded({ extended: false }))
+app.use(express.urlencoded({ extended: true }))
 app.use(session({
     secret: 'absolute secret',
     resave: false,
@@ -45,11 +46,16 @@ const adminRoute = require('./routes/admin')
 const coorRoute = require('./routes/coordinator')
 const userRoute = require('./routes/user')
 
+const APIs = require('./api')
+
+app.use('/api', APIs);
+
 //Route middleware
-app.use('/', indexRoute)
+app.use('/', [LogMiddleware], indexRoute)
 app.use('/admin', adminRoute)
 app.use('/coordinator', coorRoute)
 app.use('/user', userRoute)
+
 
 
 app.listen(3000)
