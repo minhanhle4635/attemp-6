@@ -1,0 +1,7 @@
+<h2><%= faculty.name %></h2>
+
+<div> Description: <%= faculty.description %> </div>
+
+<a href="/admin/faculty/<%= faculty._id %>/edit">Edit</a>
+<%- include('../partials/deleteForm', {url: `/admin/faculty/${faculty.id}`})%>
+<a href="/admin">Home</a>

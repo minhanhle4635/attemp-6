@@ -1,26 +1,38 @@
 const mongoose = require('mongoose')
+const Faculty = require('./Faculty')
+
 
 const userSchema = mongoose.Schema({
     name:{
         type: String,
         required: true,
-        min: 5
+        min: 1
     },
     username: {
         type: String,
         required: true,
-        min: 7
+        min: 1
     },
     password: {
         type: String,
         required: true,
-        min: 7
+        min: 1,
+        select: false
+    },
+    createdAt:{
+        type: Date,
+        required: true,
+        default: Date.now()
     },
     role:{
         type: String,
         enum: ['admin','coordinator','user'],
         default: 'user'
+    },
+    faculty: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Faculty'
     }
 })
 
-module.exports = mongoose.model( 'User',userSchema )
+module.exports = mongoose.model( 'User', userSchema )

@@ -1,52 +1,53 @@
 const User = require('./models/User')
 const bcrypt = require('bcrypt')
 
-const Login = (req,res,next) => {
+const Login = async (req,res,next) => {
     console.log(req.body)
     const {username, password} = req.body
     console.log(username)
-    User.findOne({ username: username}).exec((err, user)=>{
-        if(err){
-            console.log(err)
-            return res.redirect('/')
-        } else if(!user){
-            return res.redirect('/')
-        } else if(user){
-            bcrypt.compare(password, user.password, (err, same) =>{
-                if(same){
-                    req.session.userId = user._id
-                    req.session.isAdmin = user.role === "admin" ? true : false
-                    req.session.isCoordinator = user.role === "coordinator" ? true : false
-                    req.session.isUser = user.role === "user" ? true : false
-                
-                    if(user.role === "admin"){
-                        return res.redirect(`/admin`)
-                    } else if(user.role === "coordinator") {
-                        return res.redirect(`/coordinator`)
-                    } else if(user.role === "user"){
-                        return res.redirect(`/user`)
-                    } else {
-                        return res.redirect(`/`)
-                    }
+    // khi them "select" trong schema thi can than thieu field password (vi no bi exclude khoi model tra ve luon). de them vao model
+    // trong tra ve thi them `select([<ten field>]) vao. su dung `+` (de them) hoac `-` de khong select.
+    const user = await User.findOne({ username: username}).select(['+password']).exec()
+    if(!user){
+        return res.redirect('/')
+    } else if(user){
+        // khong co password
+        // ok con gi nua k
+        bcrypt.compare(password, user.password, (err, same) =>{
+            if(same){
+                req.session.userId = user._id;
+                req.session.isAdmin = user.role === 'admin';
+                req.session.isCoordinator = user.role === 'coordinator';
+                req.session.isUser = user.role === 'user';
+            
+                if(user.role === "admin"){
+                    return res.redirect('/admin')
+                } else if(user.role === "coordinator") {
+                    return res.redirect('/coordinator')
+                } else if(user.role === "user"){
+                    return res.redirect('/user')
                 }
-            })
-        }  else{
-            return res.redirect('/')
-        }
-    })
+            } else {
+                return res.redirect('/')
+            }
+        })
+    }  else{
+        return res.redirect('/')
+    }
 }
 
 const Logout = (req,res,next)=>{
+    console.log(req.session);
     if(req.session){
         req.session.destroy((err)=>{
             if(err){
                 return next(err)
             } else{
+                console.log(req.session)
                 return res.redirect('/')
             }
         })
     }
 }
-
 
 module.exports = { Login, Logout }

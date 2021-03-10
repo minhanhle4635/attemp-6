@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
 const User = require('../models/User')
-const mongoose = require('mongoose')
+// const mongoose = require('mongoose')
 const {Login, Logout} = require('../Login')
 const passport = require('passport')
 
@@ -10,7 +10,7 @@ router.get('/',(req,res)=>{
     res.render('index')
 })
 
-router.post('/', Login,(req,res,next)=>{
+router.post('/', Login, (req,res,next)=>{
     passport.authenticate('local', {
         failureFlash: true
     }) (req,res,next)
@@ -36,7 +36,7 @@ router.post('/register', async (req,res)=>{
             res.redirect('/')
         } else{
             res.render('register', {
-                errorMessage: 'Email has been used'
+                errorMessage: 'Username has been used'
             })
         }
     } catch(err){

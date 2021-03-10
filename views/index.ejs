@@ -1,5 +1,7 @@
 <h1>Hi Anon</h1>
-
+<% if(messages.error) { %>
+    <%= messages.error %>
+    <% } %>
 <form action="/" method="POST">
     <div>
         <label for="username">Username</label>

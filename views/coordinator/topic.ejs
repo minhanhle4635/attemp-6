@@ -1,0 +1,24 @@
+<a href="/coordinator/topic/new">New Topic</a>
+
+<h1>Topic</h1>
+
+<form action="/coordinator/topic" method="GET">
+    <div>
+        <label>Name</label>
+        <input type="text" name="name" value="<%= searchOptions.name %>">
+    </div>
+    <button type="submit">Search</button>
+</form>
+<div>
+    <% topic.forEach(topic =>{ %>
+        <table>
+        <tr>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td><a href="/coordinator/topic/<%= topic.id %>"><%= topic.name %></a></td>
+        </tr>
+        </table>
+    <% }) %>
+</div>
+<a href="/coordinator">Home</a>

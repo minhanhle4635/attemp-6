@@ -45,7 +45,7 @@ const adminRoute = require('./routes/admin')
 const coorRoute = require('./routes/coordinator')
 const userRoute = require('./routes/user')
 
-//Route middleware
+//Route
 app.use('/', indexRoute)
 app.use('/admin', adminRoute)
 app.use('/coordinator', coorRoute)
