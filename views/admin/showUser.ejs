@@ -3,8 +3,8 @@
 <div> Username: <%= user.username %></div>
 <div> Role: <%= user.role %> </div>
 
-<div> Faculty Assigned: <a href="/admin/faculty/<%= user.faculty.id %>"><%= user.faculty.name %></a></div>
+<div> Faculty Assigned: <a href="/admin/faculty/<%= user.faculty._id %>"><%= user.faculty.name %></a></div>
 
 <a href="/admin/user/<%= user._id %>/edit">Edit</a>
-<%- include('../partials/deleteForm', {url: `/admin/user/${user.id}`})%>
+<%- include('../partials/deleteForm', {url: `/admin/user/${user._id}`})%>
 <a href="/admin">Home</a>

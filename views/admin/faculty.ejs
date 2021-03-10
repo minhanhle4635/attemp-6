@@ -9,7 +9,7 @@
 </form>
 <div>
     <% faculty.forEach(faculty =>{ %>
-        <a href="/admin/faculty/<%= faculty.id %>"><%= faculty.name %></a>
+        <a href="/admin/faculty/<%= faculty._id %>"><%= faculty.name %></a>
     <% }) %>
 </div>
 <a href="/admin">Home</a>

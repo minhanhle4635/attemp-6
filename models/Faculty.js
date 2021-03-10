@@ -7,10 +7,6 @@ const facultySchema = mongoose.Schema({
     },
     description:{
         type: String
-    },
-    topic: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Topic'
     }
 })
 

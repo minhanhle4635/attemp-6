@@ -32,6 +32,10 @@ const userSchema = mongoose.Schema({
     faculty: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Faculty'
+    },
+    topic: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Topic'
     }
 })
 

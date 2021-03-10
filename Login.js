@@ -28,6 +28,7 @@ const Login = async (req,res,next) => {
                     return res.redirect('/user')
                 }
             } else {
+                console.log(err)
                 return res.redirect('/')
             }
         })
@@ -37,13 +38,13 @@ const Login = async (req,res,next) => {
 }
 
 const Logout = (req,res,next)=>{
-    console.log(req.session);
+    
     if(req.session){
         req.session.destroy((err)=>{
             if(err){
                 return next(err)
             } else{
-                console.log(req.session)
+                
                 return res.redirect('/')
             }
         })

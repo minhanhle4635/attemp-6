@@ -15,6 +15,10 @@ const topicSchema = mongoose.Schema({
     expiredDate: {
         type: Date,
         required: true
+    },
+    faculty: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Faculty'
     }
 })
 

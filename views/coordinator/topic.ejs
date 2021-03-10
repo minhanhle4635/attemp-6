@@ -10,15 +10,22 @@
     <button type="submit">Search</button>
 </form>
 <div>
-    <% topic.forEach(topic =>{ %>
-        <table>
+    <table>
         <tr>
             <th>Name</th>
+            <th>expired Date</th>
         </tr>
-        <tr>
-            <td><a href="/coordinator/topic/<%= topic.id %>"><%= topic.name %></a></td>
-        </tr>
-        </table>
-    <% }) %>
+        <% topic.forEach(topic=>{ %>
+            <tr>
+                <td><a href="/coordinator/topic/<%= topic.id %>">
+                        <%= topic.name %>
+                    </a></td>
+                <td>
+                    <%= topic.expiredDate==null ? '' : topic.expiredDate.toISOString().split('T')[0] %>
+                </td>
+            </tr>
+            <% }) %>
+    </table>
 </div>
-<a href="/coordinator">Home</a>
+
+<div><a href="/coordinator">Home</a></div>

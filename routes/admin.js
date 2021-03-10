@@ -3,6 +3,7 @@ const router = express.Router()
 const bcrypt = require('bcrypt')
 const User = require('../models/User')
 const Faculty = require('../models/Faculty')
+const Topic = require('../models/Topic')
 const {Logout} = require('../Login')
 
 router.get('/', isAdmin,(req,res) => {
@@ -62,7 +63,8 @@ router.post('/user/new', isAdmin, async (req,res) =>{
 
 router.get('/user/:id', isAdmin, async (req,res)=>{
     try{
-        const user = await User.findById(req.params.id).populate('Faculty').exec()
+        const user = await User.findById(req.params.id).populate("faculty").exec()
+        console.log(user)
         res.render('admin/showUser',{
             user: user
         })
@@ -86,15 +88,32 @@ router.get('/user/:id/edit', isAdmin, async(req,res)=>{
 })
 
 router.put('/user/:id/edit', isAdmin, async (req,res)=>{
-    let user
+    const newName = req.body.name;
+    const newUserName = req.body.username;
+    const newPassword = req.body.password;
+    const newRole = req.body.role;
+    
     try{
-        const hashedPassword = await bcrypt.hash(req.body.password, 10)
-        user = await User.findById(req.params.id)
-        user.username = req.body.username
-        user.password = hashedPassword
-        user.role = req.body.role
+        const user = await User.findById(req.params.id)
+        if (!!newName) {
+            user.name = newName;
+        }
+        
+        if (!!newUserName) {
+            user.username = newUserName;
+        }
+
+        if (!!newRole) {
+            user.role = newRole;
+        }
+
+        if (!!newPassword) {
+            const hashedPassword = await bcrypt.hash(newPassword, 10)
+            user.password = hashedPassword
+        }
+        
         await user.save()
-        res.redirect(`/admin/user/:id`)
+        return res.redirect(`/admin/user/${user._id}`)
     }catch(err){
         console.log(err)
         if(faculty != null){
@@ -102,7 +121,7 @@ router.put('/user/:id/edit', isAdmin, async (req,res)=>{
                 errorMessage: 'Cannot edit this faculty'
             })
         } else {
-            res.redirect('/admin/user/:id')
+            res.redirect('/admin/user/' + req.params.id)
         }
     }
 })
@@ -120,7 +139,7 @@ router.delete('/user/:id', isAdmin, async(req,res)=>{
                 errorMessage: 'Could not delete the user'
             })
         }else{
-            res.redirect('/user/:id')
+            res.redirect(`/user/${user._id}`)
         }
     }
 })
@@ -173,8 +192,12 @@ router.post('/faculty/new', async (req,res)=>{
 router.get('/faculty/:id', isAdmin, async (req,res)=>{
     try{
         const faculty = await Faculty.findById(req.params.id)
+        console.log(faculty)
+        const topic = await Topic.find({faculty: faculty._id})
+        console.log(topic)
         res.render('admin/showFaculty',{
-            faculty: faculty
+            faculty: faculty,
+            topic : topic
         })
     }catch(err){
         console.log(err)
@@ -191,7 +214,7 @@ router.get('/faculty/:id/edit', isAdmin, async(req,res)=>{
         res.render('admin/editFaculty', params)
     }catch(err){
         console.log(err)
-        res.redirect('/admin/faculty/:id')
+        res.redirect(`/admin/faculty/${faculty._id}`)
     }
 })
 
@@ -202,7 +225,7 @@ router.put('/faculty/:id/edit', isAdmin, async (req,res)=>{
         faculty.name = req.body.name
         faculty.description = req.body.description
         await faculty.save()
-        res.redirect(`/admin/faculty/:id`)
+        res.redirect(`/admin/faculty/${faculty._id}`)
     }catch(err){
         console.log(err)
         if(faculty != null){
@@ -210,7 +233,7 @@ router.put('/faculty/:id/edit', isAdmin, async (req,res)=>{
                 errorMessage: 'Cannot edit this faculty'
             })
         } else {
-            res.redirect('/admin/faculty/:id')
+            res.redirect(`/admin/faculty/${faculty._id}`)
         }
     }
 })
@@ -228,7 +251,7 @@ router.delete('/faculty/:id', isAdmin, async(req,res)=>{
                 errorMessage: 'Could not delete the faculty'
             })
         }else{
-            res.redirect('/faculty/:id')
+            res.redirect(`/faculty/${faculty._id}`)
         }
     }
 })

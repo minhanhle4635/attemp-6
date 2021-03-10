@@ -9,7 +9,7 @@
 </form>
 <div>
     <% user.forEach(user =>{ %>
-        <a href="/admin/user/<%= user.id %>"><%= user.name %></a>
+        <a href="/admin/user/<%= user._id %>"><%= user.name %></a>
     <% }) %>
 </div>
 <a href="/admin">Home</a>
