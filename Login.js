@@ -1,18 +1,24 @@
 const User = require('./models/User')
 const bcrypt = require('bcrypt')
+const { loginValidation } = require('./validation')
 
 const Login = async (req,res,next) => {
-    console.log(req.body)
     const {username, password} = req.body
-    console.log(username)
+    //Login Validation
+    const{error} = loginValidation(req.body)
+    if(error) return res.status(400).send(error.details[0].message)
+    // find user in database
+    const user = await User.findOne({username: username}).select(['+password']).exec()
+    //if no username is founded
+    if(!user) return res.status(400).send('Username is wrong')
+    //if the password is wrong
+    const validPass = await bcrypt.compare(password, user.password)
+    if(!validPass) return res.status(400).send('Invalid Password')
     // khi them "select" trong schema thi can than thieu field password (vi no bi exclude khoi model tra ve luon). de them vao model
     // trong tra ve thi them `select([<ten field>]) vao. su dung `+` (de them) hoac `-` de khong select.
-    const user = await User.findOne({ username: username}).select(['+password']).exec()
     if(!user){
         return res.redirect('/')
     } else if(user){
-        // khong co password
-        // ok con gi nua k
         bcrypt.compare(password, user.password, (err, same) =>{
             if(same){
                 req.session.userId = user._id;

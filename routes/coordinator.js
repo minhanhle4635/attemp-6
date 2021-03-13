@@ -4,6 +4,7 @@ const Topic = require('../models/Topic')
 const router = express.Router()
 const User = require('../models/User')
 const Faculty = require('../models/Faculty')
+const Article = require('../models/Article')
 
 router.get('/', isCoordinator, async (req, res) => {
     const user = await User.findById(req.session.userId).populate("faculty").exec()
@@ -125,6 +126,65 @@ router.delete('/topic/:id', isCoordinator, async (req, res) => {
     }
 })
 
+//article permission
+router.get('/article', isCoordinator, async (req, res) => {
+    if (req.query.name != null && req.query.name != '') {
+        query = query.regex('name', new RegExp(req.query.name, 'i'))
+    }
+    try {
+        const user = await User.findById(req.session.userId)
+        const article = await Article.find({faculty: user.faculty, status: 'false'})
+
+        res.render('coordinator/article', {
+            articles: article,
+            searchOptions: req.query
+        })
+    } catch (error) {
+        console.log(error)
+        res.redirect('/coordinator')
+    }
+})
+
+router.post('/article', isCoordinator, async(req,res)=>{
+    try {
+        const permission = req.body.permission
+        const articleId = req.body.articleId
+        const article = await Article.findById(articleId)
+        if(permission === 'accept'){
+            article.status = true
+            await article.save()
+            res.redirect('/coordinator/article')
+        } else if(permission === 'refuse'){
+
+            res.redirect('/coordinator/article')
+        }
+    } catch (error) {
+        req.flash('errorMessage','Cannot permit this article')
+        res.redirect('/coordinator/article')
+    }
+})
+
+router.get('/article/:id', isCoordinator, async(req,res)=>{
+    try {
+        const article = await Article.findById(req.params.id)
+        res.render('coordinator/showArticle',{article: article})
+    } catch (error) {
+        console.log(error)
+        res.redirect('/coordinator')
+    }
+})
+
+router.post('/article/:id', isCoordinator, async (req,res)=>{
+    try {
+        article.comment = req.body.comment
+        await article.save()
+    } catch (error) {
+        console.log(error)
+        req.flash('errorMessage', 'Cannot add comment to this article')
+        res.redirect('back')
+    }
+})
+
 router.get('/logout', Logout)
 
 function isCoordinator(req, res, next) {
@@ -137,7 +197,5 @@ function isCoordinator(req, res, next) {
         return res.redirect('/')
     }
 }
-
-
 
 module.exports = router

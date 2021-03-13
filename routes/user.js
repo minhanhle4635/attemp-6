@@ -1,13 +1,34 @@
 const express = require('express')
 const router = express.Router()
 const { Logout } = require('../Login')
+const Article = require('../models/Article')
 const Faculty = require('../models/Faculty')
 const Topic = require('../models/Topic')
+const User = require('../models/User')
+const multer = require('multer')
+const path = require('path')
+const uploadPath = path.join('public', Article.fileBasePath)
+const fileMimeTypes = require('../helper/mime-file')
+const imageMimeTypes = ['image/jpeg', 'image/png', 'images/gif']
+const fs = require('fs')
+
+const upload = multer({
+    dest: uploadPath,
+    fileFilter: (req, file, callback) => {
+        callback(null, fileMimeTypes.includes(file.mimetype))
+    },
+    fileName: (req,file,callback)=>{
+        callback(null, req.file.originalname)
+    }
+})
+
 
 router.get('/', isUser, (req, res) => {
     res.render('user/index')
 })
 
+
+//get topic index page 
 router.get('/topic', isUser, async (req, res) => {
     try {
         const topics = await Topic.find({}).populate('faculty');
@@ -19,7 +40,7 @@ router.get('/topic', isUser, async (req, res) => {
             // điểm khác biệt của object với array là tôi có
             // thể phân biệt được "faculty" mà tôi check tại topic này
             // đã được phân loại chưa
-            if(!facultyList[topic.faculty._id]) {
+            if (!facultyList[topic.faculty._id]) {
                 // nếu trong trường hợp "chưa được phân loại"
                 //
                 // thì `facultyList.abc` = undefined;
@@ -40,7 +61,6 @@ router.get('/topic', isUser, async (req, res) => {
                 // }
                 //
             }
-            
             // sau đó tôi chỉ việc push cái thông tin topic
             // vào cái `topics` array bên trên.
             facultyList[topic.faculty._id].topics.push(topic);
@@ -53,20 +73,172 @@ router.get('/topic', isUser, async (req, res) => {
     }
 })
 
-router.get('/article', isUser, (req, res) => {
-    res.render('user/article')
+
+//show topic
+router.get('/topic/:id', isUser, async (req, res) => {
+    try {
+        const topic = await Topic.findById(req.params.id)
+        console.log(req.params.id)
+        res.render('user/showTopic', {
+            topic: topic
+        })
+    } catch (error) {
+        console.log(error)
+        res.redirect('/user/topic')
+    }
 })
 
-router.get('/article/new', isUser, (req, res) => {
-    res.render('user/newArticle')
+//get page article index
+router.get('/article', isUser, async (req, res) => {
+    let query = Article.find({status: 'true'})
+    if (req.query.name != null && req.query.name != '') {
+        query = query.regex('name', new RegExp(req.query.name, 'i'))
+    }
+    try {
+        const article = await query.exec()
+        res.render('user/article', {
+            articles: article,
+            searchOptions: req.query
+        })
+    } catch (err) {
+        console.log(err)
+        res.redirect('/user')
+    }
+})
+
+// get page new Article
+router.get('/newarticle', isUser, async (req,res)=>{
+    const topic = await Topic.find({})
+    res.render('user/newArticle',{
+        topics : topic
+    })
+})
+
+//create new Article
+router.post('/newarticle', isUser, upload.single('file'), async (req, res) => {
+    const topic = await Topic.find({_id: req.body.topic})
+    console.log(topic)
+    const faculty = topic[0].faculty
+    console.log(faculty)
+    const article = new Article({
+        name: req.body.name,
+        description: req.body.description,
+        author: req.body.author,
+        poster: req.session.userId,
+        topic: req.body.topic,
+        faculty: faculty,
+        fileName: req.file.originalname
+    })
+    saveCover(article, req.body.cover)
+    try {
+        const newArticle = await article.save();
+        res.redirect('/user/article')
+        req.flash('errorMessage', 'Wait for permision')
+    } catch (error) {
+        if(article.fileName != null){removefile(article.fileName)}
+        req.flash('errorMessage', 'Cant create this article');
+        res.redirect('back');
+    }
+})
+
+//show Article
+router.get('/article/:id', isUser, async (req,res)=>{
+    try {
+        const article = await Article.findById(req.params.id).populate("topic").exec()
+        res.render('user/showArticle',{article: article})
+    } catch (error) {
+        console.log(error)
+        res.redirect('/user')
+    }
+})
+
+//get article edit page
+router.get('/article/:id/edit', isUser, async(req,res)=>{
+    try {
+        const article = await Article.findById(req.params.id)
+        const topic = await Topic.find({})
+        const params = {
+            article: article,
+            topics: topic
+        }
+        res.render('user/editArticle', params)
+    } catch (error) {
+        console.log(error)
+        res.redirect(`/user/article/${article._id}`)     
+    }
+})
+
+//edit article
+router.put('/article/:id/edit', isUser, upload.single('file'), async(req,res)=>{
+    let article
+    try {
+        article = await Article.findById(req.params.id)
+        article.name = req.body.name
+        article.author = req.body.author
+        article.description = req.body.description
+        article.topic = req.body.topic
+        article.file = req.file.originalname
+        saveCover(article, req.body.cover)
+
+        await article.save()
+        res.redirect(`/user/article/${article._id}`)
+    } catch (error) {
+        console.log(error)
+        if(article != null){
+            req.flash('errorMessage', 'Cannot edit this topic')
+            res.redirect('back')
+        } else {
+            res.redirect('/user/article')
+        }
+    }
+})
+
+router.delete('/article/:id', isUser, async (req, res) => {
+    let article
+    try {
+        article = await Article.findById(req.params.id)
+        console.log(article)
+        await article.remove()
+        res.redirect('/user/article')
+    } catch {
+        if (article != null) {
+            res.render('user/showArticle', {
+                article: article,
+            })
+            req.flash('errorMessage', 'Could not delete the article')
+        } else {
+            res.redirect(`/user/article/${article._id}`)
+        }
+    }
 })
 
 router.get('/logout', Logout)
 
+function saveCover(article, coverEncoded) {
+    if (coverEncoded == null) return
+    const cover = JSON.parse(coverEncoded)
+    if (cover != null && imageMimeTypes.includes(cover.type)) {
+        article.coverImage = new Buffer.from(cover.data, 'base64')
+        article.coverImageType = cover.type
+    }
+}
+
+function removefile(fileName){
+    fs.unlink(path.join(uploadPath, fileName), err => {
+        if(err) console.error(err)
+    })
+}
+
 function isUser(req, res, next) {
-    if (!req.session.userId) { return res.redirect('/') }
-    else if (req.session.isCoordinator === 'true') { return res.redirect('/coordinator') }
-    else { next() }
+    if (!req.session.userId) {
+        return res.redirect('/')
+    }
+    else if (req.session.isCoordinator === 'true') {
+        return res.redirect('/coordinator')
+    }
+    else {
+        next()
+    }
 }
 
 module.exports = router

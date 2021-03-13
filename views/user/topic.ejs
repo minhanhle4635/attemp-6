@@ -1,15 +1,12 @@
 <h1>Topic</h1>
 
-<table>
-    <tr></tr>
-</table>
 <% Object.keys(faculties).forEach(facultyId=>{ %>
     <h2><%= faculties[facultyId].name %></h2>
     <table>
         <tr>
             <td>
                 <% faculties[facultyId].topics.forEach(topic => { %>
-                 <p><%= topic.name %> </p>
+                 <p><a href="/user/topic/<%= topic.id %>"><%= topic.name %></a></p>
                 <% }) %>
             </td>
         </tr>
@@ -17,4 +14,5 @@
     <hr>
 <% }) %>
 
-<%- JSON.stringify(faculties) %> 
+
+<a href="/user">Home</a>

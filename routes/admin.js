@@ -4,120 +4,116 @@ const bcrypt = require('bcrypt')
 const User = require('../models/User')
 const Faculty = require('../models/Faculty')
 const Topic = require('../models/Topic')
-const {Logout} = require('../Login')
+const { Logout } = require('../Login')
 
-router.get('/', isAdmin,(req,res) => {
+router.get('/', isAdmin, (req, res) => {
     res.render('admin/index')
 })
 
 //User function
 
-router.get('/user',async (req,res)=>{
+router.get('/user', async (req, res) => {
     let query = User.find()
-    if(req.query.name != null && req.query.name != '') {
+    if (req.query.name != null && req.query.name != '') {
         query = query.regex('name', new RegExp(req.query.name, 'i'))
     }
-    try{
+    try {
         const user = await query.exec()
-        res.render('admin/user',{
+        res.render('admin/user', {
             user: user,
             searchOptions: req.query
         })
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.redirect('/admin')
     }
 })
 
-router.get('/user/new', isAdmin, async (req,res) =>{
+router.get('/user/new', isAdmin, async (req, res) => {
     const faculty = await Faculty.find({})
-    res.render('admin/register',{
-        faculty : faculty
+    res.render('admin/register', {
+        faculty: faculty
     })
 })
 
-router.post('/user/new', isAdmin, async (req,res) =>{
-    try{
-        const ExistedUser = await User.findOne({username : req.body.username})
+router.post('/user/new', isAdmin, async (req, res) => {
+    try {
+        const ExistedUser = await User.findOne({ username: req.body.username })
         const hashedPassword = await bcrypt.hash(req.body.password, 10)
         const newUser = new User({
-            name : req.body.name,
+            name: req.body.name,
             username: req.body.username,
             password: hashedPassword,
-            role : req.body.role,
-            faculty : req.body.faculty
+            role: req.body.role,
+            faculty: req.body.faculty
         })
-        if(ExistedUser == null){
+        if (ExistedUser == null) {
             await newUser.save()
             res.redirect('/admin')
-        } else{
+        } else {
             res.render('admin/register', {
                 errorMessage: 'Username has been used'
             })
         }
-    } catch(err){
+    } catch (err) {
         console.log(err)
         res.redirect('/admin/user/new')
     }
 })
 
-router.get('/user/:id', isAdmin, async (req,res)=>{
-    try{
+router.get('/user/:id', isAdmin, async (req, res) => {
+    try {
         const user = await User.findById(req.params.id).populate("faculty").exec()
         console.log(user)
-        res.render('admin/showUser',{
+        res.render('admin/showUser', {
             user: user
         })
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.redirect('/admin/user')
-    }   
+    }
 })
 
-router.get('/user/:id/edit', isAdmin, async(req,res)=>{
-    try{
+router.get('/user/:id/edit', isAdmin, async (req, res) => {
+    try {
         const user = await User.findById(req.params.id)
         const params = {
             user: user
         }
         res.render('admin/editUser', params)
-    }catch(err){
+    } catch (err) {
         console.log(err)
-        res.redirect('/admin/user/:id')
+        res.redirect(`/admin/user/${user._id}`)
     }
 })
 
-router.put('/user/:id/edit', isAdmin, async (req,res)=>{
+router.put('/user/:id/edit', isAdmin, async (req, res) => {
     const newName = req.body.name;
     const newUserName = req.body.username;
     const newPassword = req.body.password;
     const newRole = req.body.role;
-    
-    try{
+
+    try {
         const user = await User.findById(req.params.id)
         if (!!newName) {
             user.name = newName;
         }
-        
         if (!!newUserName) {
             user.username = newUserName;
         }
-
         if (!!newRole) {
             user.role = newRole;
         }
-
         if (!!newPassword) {
             const hashedPassword = await bcrypt.hash(newPassword, 10)
             user.password = hashedPassword
         }
-        
         await user.save()
         return res.redirect(`/admin/user/${user._id}`)
-    }catch(err){
+    } catch (err) {
         console.log(err)
-        if(faculty != null){
-            res.render('admin/editUser',{
+        if (faculty != null) {
+            res.render('admin/editUser', {
                 errorMessage: 'Cannot edit this faculty'
             })
         } else {
@@ -126,19 +122,19 @@ router.put('/user/:id/edit', isAdmin, async (req,res)=>{
     }
 })
 
-router.delete('/user/:id', isAdmin, async(req,res)=>{
+router.delete('/user/:id', isAdmin, async (req, res) => {
     let user
-    try{
+    try {
         user = await User.findById(req.params.id)
         await user.remove()
         res.redirect('/admin/user')
-    }catch{
-        if(faculty != null){
+    } catch {
+        if (faculty != null) {
             res.render('admin/showUser', {
-                faculty : faculty,
+                faculty: faculty,
                 errorMessage: 'Could not delete the user'
             })
-        }else{
+        } else {
             res.redirect(`/user/${user._id}`)
         }
     }
@@ -146,90 +142,90 @@ router.delete('/user/:id', isAdmin, async(req,res)=>{
 
 //Faculty Function
 
-router.get('/faculty', isAdmin, async (req,res)=>{
+router.get('/faculty', isAdmin, async (req, res) => {
     let query = Faculty.find()
-    if(req.query.name != null && req.query.name != '') {
+    if (req.query.name != null && req.query.name != '') {
         query = query.regex('name', new RegExp(req.query.name, 'i'))
     }
-    try{
+    try {
         const faculty = await query.exec()
-        res.render('admin/faculty',{
-            faculty : faculty,
+        res.render('admin/faculty', {
+            faculty: faculty,
             searchOptions: req.query
         })
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.redirect('/admin')
     }
-    
+
 })
 
-router.get('/faculty/new', isAdmin, (req,res)=>{
+router.get('/faculty/new', isAdmin, (req, res) => {
     res.render('admin/newFaculty')
 })
 
-router.post('/faculty/new', async (req,res)=>{
-    try{
+router.post('/faculty/new', async (req, res) => {
+    try {
         const existedFaculty = await Faculty.findOne({ name: req.body.name })
         const newFaculty = new Faculty({
             name: req.body.name,
             description: req.body.description
         })
-        if(existedFaculty == null){
+        if (existedFaculty == null) {
             await newFaculty.save()
             res.redirect('/admin/faculty')
-        } else{
+        } else {
             res.render('admin/newFaculty', {
                 errorMessage: 'Faculty Existed'
             })
         }
-    }catch (err){
+    } catch (err) {
         console.log(err)
         res.redirect('/admin/faculty')
     }
 })
 
-router.get('/faculty/:id', isAdmin, async (req,res)=>{
-    try{
+router.get('/faculty/:id', isAdmin, async (req, res) => {
+    try {
         const faculty = await Faculty.findById(req.params.id)
         console.log(faculty)
-        const topic = await Topic.find({faculty: faculty._id})
+        const topic = await Topic.find({ faculty: faculty._id })
         console.log(topic)
-        res.render('admin/showFaculty',{
+        res.render('admin/showFaculty', {
             faculty: faculty,
-            topic : topic
+            topic: topic
         })
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.redirect('/admin/faculty')
-    }   
+    }
 })
 
-router.get('/faculty/:id/edit', isAdmin, async(req,res)=>{
-    try{
+router.get('/faculty/:id/edit', isAdmin, async (req, res) => {
+    try {
         const faculty = await Faculty.findById(req.params.id)
         const params = {
             faculty: faculty
         }
         res.render('admin/editFaculty', params)
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.redirect(`/admin/faculty/${faculty._id}`)
     }
 })
 
-router.put('/faculty/:id/edit', isAdmin, async (req,res)=>{
+router.put('/faculty/:id/edit', isAdmin, async (req, res) => {
     let faculty
-    try{
+    try {
         faculty = await Faculty.findById(req.params.id)
         faculty.name = req.body.name
         faculty.description = req.body.description
         await faculty.save()
         res.redirect(`/admin/faculty/${faculty._id}`)
-    }catch(err){
+    } catch (err) {
         console.log(err)
-        if(faculty != null){
-            res.render('admin/editFaculty',{
+        if (faculty != null) {
+            res.render('admin/editFaculty', {
                 errorMessage: 'Cannot edit this faculty'
             })
         } else {
@@ -238,30 +234,30 @@ router.put('/faculty/:id/edit', isAdmin, async (req,res)=>{
     }
 })
 
-router.delete('/faculty/:id', isAdmin, async(req,res)=>{
+router.delete('/faculty/:id', isAdmin, async (req, res) => {
     let faculty
-    try{
+    try {
         faculty = await Faculty.findById(req.params.id)
         await faculty.remove()
         res.redirect('/admin/faculty')
-    }catch{
-        if(faculty != null){
+    } catch {
+        if (faculty != null) {
             res.render('admin/showFaculty', {
-                faculty : faculty,
+                faculty: faculty,
                 errorMessage: 'Could not delete the faculty'
             })
-        }else{
+        } else {
             res.redirect(`/faculty/${faculty._id}`)
         }
     }
 })
 
-function isAdmin(req,res,next){
+function isAdmin(req, res, next) {
     console.log(req.session)
-    if(req.session.isAdmin === true){next()}
-    else if(req.session.isCoordinator === true){return res.redirect('/coordinator')}
-    else if(req.session.isUser === true) {return res.redirect('/user')}
-    else{res.redirect('/')}
+    if (req.session.isAdmin === true) { next() }
+    else if (req.session.isCoordinator === true) { return res.redirect('/coordinator') }
+    else if (req.session.isUser === true) { return res.redirect('/user') }
+    else { res.redirect('/') }
 }
 
 router.get('/logout', Logout)
