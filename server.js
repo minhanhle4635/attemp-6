@@ -51,5 +51,5 @@ app.use('/admin', adminRoute)
 app.use('/coordinator', coorRoute)
 app.use('/user', userRoute)
 
-
-app.listen(3000)
+const port = process.env.PORT || 80 
+app.listen(port)
