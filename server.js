@@ -10,6 +10,7 @@ const flash = require('express-flash')
 const mongoose = require('mongoose')
 const passport = require('passport')
 const methodOverride = require('method-override')
+const bodyParser = require('body-parser')
 
 //passport config
 require('./passport-config')(passport)
@@ -21,6 +22,7 @@ app.use(expressLayouts)
 
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({extended:false}))  
 app.use(session({
     secret: 'absolute secret',
     resave: false,

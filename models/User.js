@@ -30,12 +30,14 @@ const userSchema = mongoose.Schema({
         default: 'user'
     },
     faculty: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Faculty'
+        type: mongoose.Schema.Types.ObjectId || String,
+        ref: 'Faculty',
+        default: null
     },
     topic: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Topic'
+        type: mongoose.Schema.Types.ObjectId || String,
+        ref: 'Topic',
+        default: null
     }
 })
 

@@ -1,7 +1,7 @@
 const documentMime = [
     'application/msword', 
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/pdf',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 ]
 
 module.exports = documentMime;

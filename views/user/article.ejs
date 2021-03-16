@@ -16,10 +16,15 @@
     <% articles.forEach(article=>{ %>
         <table>
             <tr>
-                <td><img height="150" width="100" src="<%= article.coverImagePath %>"></td>
-                <td><a href="/user/article/<%= article._id %>">
+                <td><img height="150" width="100" src="<%= article.coverImagePath %>">
+                    <a href="/user/article/<%= article._id %>">
                         <%= article.name %>
                     </a>
+                </td>
+                <td>
+                    <form action="/user/article/download/<%= article._id %>" method="GET">
+                        <input type="submit" value="Download">
+                    </form>
                 </td>
             </tr>
         </table>

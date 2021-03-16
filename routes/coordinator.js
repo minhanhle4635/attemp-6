@@ -133,7 +133,7 @@ router.get('/article', isCoordinator, async (req, res) => {
     }
     try {
         const user = await User.findById(req.session.userId)
-        const article = await Article.find({faculty: user.faculty, status: 'false'})
+        const article = await Article.find({ faculty: user.faculty, status: 'false' })
 
         res.render('coordinator/article', {
             articles: article,
@@ -145,36 +145,37 @@ router.get('/article', isCoordinator, async (req, res) => {
     }
 })
 
-router.post('/article', isCoordinator, async(req,res)=>{
+router.post('/article', isCoordinator, async (req, res) => {
     try {
         const permission = req.body.permission
         const articleId = req.body.articleId
         const article = await Article.findById(articleId)
-        if(permission === 'accept'){
+        if (permission === 'accept') {
             article.status = true
+            article.comment = req.body.comment
             await article.save()
             res.redirect('/coordinator/article')
-        } else if(permission === 'refuse'){
+        } else if (permission === 'refuse') {
 
             res.redirect('/coordinator/article')
         }
     } catch (error) {
-        req.flash('errorMessage','Cannot permit this article')
+        req.flash('errorMessage', 'Cannot permit this article')
         res.redirect('/coordinator/article')
     }
 })
 
-router.get('/article/:id', isCoordinator, async(req,res)=>{
+router.get('/article/:id', isCoordinator, async (req, res) => {
     try {
         const article = await Article.findById(req.params.id)
-        res.render('coordinator/showArticle',{article: article})
+        res.render('coordinator/showArticle', { article: article })
     } catch (error) {
         console.log(error)
         res.redirect('/coordinator')
     }
 })
 
-router.post('/article/:id', isCoordinator, async (req,res)=>{
+router.post('/article/:id', isCoordinator, async (req, res) => {
     try {
         article.comment = req.body.comment
         await article.save()

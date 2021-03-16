@@ -5,20 +5,24 @@ const User = require('../models/User')
 const Faculty = require('../models/Faculty')
 const Topic = require('../models/Topic')
 const { Logout } = require('../Login')
+const { registerValidation } = require('../validation')
 
-router.get('/', isAdmin, (req, res) => {
-    res.render('admin/index')
+router.get('/', isAdmin, async(req, res) => {
+    const user = await User.findById(req.session.userId)
+    res.render('admin/index',{
+        user : user
+    })
 })
 
 //User function
 
 router.get('/user', async (req, res) => {
-    let query = User.find()
+    let query = User.find({}).populate('faculty').exec()
     if (req.query.name != null && req.query.name != '') {
         query = query.regex('name', new RegExp(req.query.name, 'i'))
     }
     try {
-        const user = await query.exec()
+        const user = await query
         res.render('admin/user', {
             user: user,
             searchOptions: req.query
@@ -37,24 +41,19 @@ router.get('/user/new', isAdmin, async (req, res) => {
 })
 
 router.post('/user/new', isAdmin, async (req, res) => {
+    const ExistedUser = await User.findOne({ username: req.body.username })
+    if(ExistedUser) return res.status(400).send('Username already exists')
+    const hashedPassword = await bcrypt.hash(req.body.password, 10)
+    const newUser = new User({
+        name: req.body.name,
+        username: req.body.username,
+        password: hashedPassword,
+        role: req.body.role,
+        faculty: req.body.faculty
+    })
     try {
-        const ExistedUser = await User.findOne({ username: req.body.username })
-        const hashedPassword = await bcrypt.hash(req.body.password, 10)
-        const newUser = new User({
-            name: req.body.name,
-            username: req.body.username,
-            password: hashedPassword,
-            role: req.body.role,
-            faculty: req.body.faculty
-        })
-        if (ExistedUser == null) {
-            await newUser.save()
-            res.redirect('/admin')
-        } else {
-            res.render('admin/register', {
-                errorMessage: 'Username has been used'
-            })
-        }
+        await newUser.save()
+        res.redirect('/admin')
     } catch (err) {
         console.log(err)
         res.redirect('/admin/user/new')
@@ -76,9 +75,11 @@ router.get('/user/:id', isAdmin, async (req, res) => {
 
 router.get('/user/:id/edit', isAdmin, async (req, res) => {
     try {
+        const faculty = await Faculty.find({})
         const user = await User.findById(req.params.id)
         const params = {
-            user: user
+            user: user,
+            faculty: faculty
         }
         res.render('admin/editUser', params)
     } catch (err) {
@@ -92,6 +93,7 @@ router.put('/user/:id/edit', isAdmin, async (req, res) => {
     const newUserName = req.body.username;
     const newPassword = req.body.password;
     const newRole = req.body.role;
+    const newFaculty = req.body.faculty
 
     try {
         const user = await User.findById(req.params.id)
@@ -103,6 +105,9 @@ router.put('/user/:id/edit', isAdmin, async (req, res) => {
         }
         if (!!newRole) {
             user.role = newRole;
+        }
+        if(!!newFaculty){
+            user.faculty = newFaculty;
         }
         if (!!newPassword) {
             const hashedPassword = await bcrypt.hash(newPassword, 10)
