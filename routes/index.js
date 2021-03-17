@@ -4,15 +4,22 @@ const bcrypt = require('bcrypt')
 const User = require('../models/User')
 // const mongoose = require('mongoose')
 const { Login, Logout } = require('../Login')
-const passport = require('passport')
+const Article = require('../models/Article')
+const path = require('path')
+const uploadPath = path.join('public', Article.fileBasePath)
 
 const { registerValidation } = require('../validation')
 
-router.get('/', (req, res) => {
-    res.render('index')
+router.get('/download/:id', async (req, res) => {
+    try {
+        const article = await Article.findById(req.params.id)
+        const pathToFile = path.join(uploadPath, article.fileName);
+        res.download(pathToFile, article.fileName)
+    } catch (error) {
+        console.log(error)
+        res.redirect('/')
+    }
 })
-
-router.post('/', Login)
 
 router.get('/register', (req, res) => {
     res.render('register')
@@ -41,5 +48,44 @@ router.post('/register', async (req, res) => {
         res.redirect('/register')
     }
 })
+
+//show Article
+router.get('/:id', async (req, res) => {
+    try {
+        const article = await Article.findById(req.params.id).populate("topic").exec()
+        res.render('showArticle', { article: article })
+    } catch (error) {
+        console.log(error)
+        res.redirect('/')
+    }
+})
+
+router.get('/', async (req, res) => {
+    try {
+        let query = Article.find({ status: 'true' })
+        if (req.query.name != null && req.query.name != '') {
+            query = query.regex('name', new RegExp(req.query.name, 'i'))
+        }
+        const article = await Article.find({})
+        res.render('index', {
+            articles: article,
+            searchOptions: req.query
+
+        })
+    } catch (error) {
+        console.log(error)
+    }
+})
+// vi route "/" thuc ra la parent cua "/user" nên
+// thằng login này sẽ catch route trên. tôi suggest là nên
+// đổi route thành /login
+// ông là server thì ông vẫn có quyền quyết định API hoặc endpoint như thế nào
+// client phải theo ông.
+// cái route kiểu "/" này nguy hiểm lắm nên xài cẩn thận
+// nó xài nhưng bên trong nó chia route nhỏ hơn
+// vd "/" = index
+// trong index thì sẽ có "/user" => user.js, "/faculty..."
+// còn route mà chỉ có "/" thì sẽ đặt cuối cùng.
+router.post('/', Login)
 
 module.exports = router

@@ -48,10 +48,12 @@ const coorRoute = require('./routes/coordinator')
 const userRoute = require('./routes/user')
 
 //Route
-app.use('/', indexRoute)
 app.use('/admin', adminRoute)
 app.use('/coordinator', coorRoute)
 app.use('/user', userRoute)
+// cai thang "/" nay se catch tat ca cac route access no
+// nen han che xai "/" hoac de no cuoi cung.
+app.use('/', indexRoute)
 
 const port = process.env.PORT || 80 
 app.listen(port)

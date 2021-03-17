@@ -41,6 +41,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 router.get('/', isUser, (req, res) => {
+    console.log('in');
     res.render('user/index')
 })
 
@@ -224,7 +225,7 @@ router.put('/article/:id/edit', isUser, upload.single('file'), async (req, res) 
     } catch (error) {
         console.log(error)
         if (article != null) {
-            req.flash('errorMessage', 'Cannot edit this topic')
+            req.flash({errorMessage: 'Cannot edit this topic'})
             res.redirect('back')
         } else {
             res.redirect('/user/article')
