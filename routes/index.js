@@ -21,6 +21,12 @@ router.get('/download/:id', async (req, res) => {
     }
 })
 
+router.get('/login', (req,res) => {
+    res.render('login')
+})
+
+router.post('/login', Login)
+
 router.get('/register', (req, res) => {
     res.render('register')
 })
@@ -86,6 +92,6 @@ router.get('/', async (req, res) => {
 // vd "/" = index
 // trong index thì sẽ có "/user" => user.js, "/faculty..."
 // còn route mà chỉ có "/" thì sẽ đặt cuối cùng.
-router.post('/', Login)
+
 
 module.exports = router
