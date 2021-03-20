@@ -2,26 +2,29 @@
 <html lang="en">
 <body>
     <header>
-        <nav class="row">
-            <img src="resources/img/logo.jpg" alt="missing picture" class="logo">
-            <ul class="main-nav">
-                <li> <a href="#">Categories </a> </li>
-                <li> <a href="#">How to contribute </a> </li>
-                <li> <a href="#">Our branches </a> </li>
-                <li> <a href="/register">Register </a> </li>
-                <li> <a href="/login">Login </a> </li>
-            </ul>
+        <nav>
+            <div class="row">
+                <img src="resources/img/logo.jpg" alt="missing picture" class="logo">
+                <img src="resources/img/logo.jpg" alt="missing picture" class="logo-black">
+                    <ul class="main-nav">
+                    <li> <a href="#cat">Categories </a> </li>
+                    <li> <a href="#guides">How to contribute </a> </li>
+                    <li> <a href="#branches">Our branches </a> </li>
+                    <li> <a href="/register">REGISTER </a> </li>
+                    <li> <a href="/login">LOGIN </a> </li>
+                </ul>
+            </div>
         </nav>
         <div class="header-text-box">
             <h1>
                 Welcome, dear students. <br> To Unipara magazine posts.
             </h1>
-            <a class="btn btn-full" href="#">I wanted to contribute</a>
-            <a class="btn btn-ghost" href="#">Guide me</a>
+            <a class="btn btn-full js-btn-scroll-rewards" href="#">I wanted to contribute</a>
+            <a class="btn btn-ghost js-btn-scroll-guide" href="#">Guide me</a>
         </div>
     </header>
 
-    <section class="section-features">
+    <section class="section-features js-section-features">
         <div class="row">
             <h2>Write your discovery &mdash; Share to all</h2>
             <p class="long-text">
@@ -63,7 +66,7 @@
         </div>
     </section>
 
-    <section class="section-subject-posts">
+    <section class="section-subject-posts" id="cat">
         <ul class="posts-showcase clearfix ">
             <li>
                 <figure class="post-img">
@@ -110,7 +113,7 @@
         </ul>
     </section>
 
-    <section class="section-post-guide">
+    <section class="section-post-guide" id="guides">
         <div class="row">
             <h2>How To post &mdash; Simple as breathing</h2>
         </div>
@@ -152,7 +155,7 @@
         
     </section>
 
-    <section class="section-cities">
+    <section class="section-cities" id="branches">
         <div class="row">
             <h2>We're have many branches</h2>
         </div>
@@ -260,7 +263,7 @@
         </div>
     </section>
 
-    <section class="section-rewards">
+    <section class="section-rewards js-section-reward">
         <div class="row">
             <h2>Top 3 contribution rewards</h2>
         </div>
@@ -340,6 +343,86 @@
         </div>
     </section>
 
+    <section class="section-form">
+        <div class="row">
+            <h2>Sign Up</h2>
+        </div>
+
+        <div class="row">
+            <form method="post" action="#" class="signup-form">
+                <div class="row">
+                    <div class="col span-1-of-3">
+                        <label for="">Name</label>
+                    </div>
+                    <div class="col span-2-of-3">
+                        <input type="text" name="name" id="name" placeholder="Enter your name" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col span-1-of-3">
+                        <label for="">Email</label>
+                    </div>
+                    <div class="col span-2-of-3">
+                        <input type="email" name="email" id="email" placeholder="Enter your Email" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col span-1-of-3">
+                        <label for="">Password</label>
+                    </div>
+                    <div class="col span-2-of-3">
+                        <input type="password" name="psw" id="psw" placeholder="Enter your password" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col span-1-of-3">
+                        <label for="">&nbsp;</label>
+                    </div>
+                    <div class="col span-2-of-3">
+                        <input type="submit" value="SIGN UP">
+                    </div>
+                </div>
+
+                <br>
+
+                <div class="row">
+                    <h2>Sign In</h2>
+                </div>
+        
+                <div class="row">
+                    <form method="post" action="#" class="signup-form">
+                        <div class="row">
+                            <div class="col span-1-of-3">
+                                <label for="">Email</label>
+                            </div>
+                            <div class="col span-2-of-3">
+                                <input type="email" name="email" id="emails" placeholder="Enter your Email" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col span-1-of-3">
+                                <label for="">Password</label>
+                            </div>
+                            <div class="col span-2-of-3">
+                                <input type="password" name="psw" id="psws" placeholder="Enter your password" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col span-1-of-3">
+                                <label for="">&nbsp;</label>
+                            </div>
+                            <div class="col span-2-of-3">
+                                <input type="submit" value="SIGN IN">
+                            </div>
+                        </div>
+
+            </form>
+        </div>
+    </section>
+
     <footer>
         <div class="row">
             <div class="col span-1-of-2">
@@ -370,61 +453,9 @@
         </div>
         <div class="row">
             <p>
-                Copyrighted &copy; 2020 by Unipara all rights reversed hahaha
+                Copyrighted &copy; 2020 by Unipara all rights reversed
             </p>
         </div>
     </footer>
 </body>
 </html>
-
-<!--
-    <h1>Hi Anon</h1>
-
-<% if(messages.error) { %>
-    <%= messages.error %>
-    <% } %> 
-
-<form action="/" method="POST">
-    <div>
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required>
-    </div>
-    <div>
-        <label for="password">Password</label>
-        <input type="password" id="username" name="password" required>
-    </div>
-    <button type="submit">Login</button>
-</form>
-
-<a href="/register">register</a> 
--->
-<!--
-<h1>Search Article</h1>
-<form action="/" method="GET">
-    <div>
-        <label>Name</label>
-        <input type="text" name="name" value="<%= searchOptions.name %>">
-    </div>
-    <button type="submit">Search</button>
-</form>
-
-<h2>Recently Added</h2>
-<div>
-    <% articles.forEach(article=>{ %>
-        <table>
-            <tr>
-                <td><img height="150" width="100" src="<%= article.coverImagePath %>">
-                    <a href="/<%= article._id %>">
-                        <%= article.name %>
-                    </a>
-                </td>
-                <td>
-                    <form action="/download/<%= article._id %>" method="GET">
-                        <input type="submit" value="Download">
-                    </form>
-                </td>
-            </tr>
-        </table>
-        <% }) %>
-</div>
--->

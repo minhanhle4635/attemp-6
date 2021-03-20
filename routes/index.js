@@ -72,7 +72,7 @@ router.get('/', async (req, res) => {
         if (req.query.name != null && req.query.name != '') {
             query = query.regex('name', new RegExp(req.query.name, 'i'))
         }
-        const article = await Article.find({})
+        const article = await query.exec()
         res.render('index', {
             articles: article,
             searchOptions: req.query
